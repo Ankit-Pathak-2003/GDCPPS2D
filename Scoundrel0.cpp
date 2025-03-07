@@ -4,6 +4,7 @@
 #include <random>
 #include <list>
 #include <unordered_set>
+
 using namespace std;
 
 class Card {
@@ -129,6 +130,37 @@ public:
                 // Handle the card choice logic (e.g., if it's a weapon, monster, etc.)
                 cout << "You chose to deal with the " << chosenCard.name << " of " << chosenCard.suit << ".\n";
                 // Add your logic here to handle combat, health, etc.
+                if(chosenCard.suit=="Heart"){
+                	if(20<=p.h+chosenCard.value){
+                		p.h=20;
+                		cout<<"Full health achieved.";
+					}
+					else{
+						p.h+=chosenCard.value;
+						cout<<"Healed using: "<<chosenCard.name<< " of " <<chosenCard.suit<<"\n";
+					}
+					cout<<"Health:"<<p.h<< " W: " <<p.w<< " Score: " <<p.score<<"\n";
+				}
+				if(chosenCard.suit=="Diamond"){
+				p.w=chosenCard.value;
+				cout<<"Equipped:"<<chosenCard.name<< " of " <<chosenCard.suit<<"\n";
+				cout<<"Health:"<<p.h<< " W: " <<p.w<< " Score: " <<p.score<<"\n";
+				}
+				if(chosenCard.suit=="Club" || chosenCard.suit=="Spade"){
+				cout << "Fighting the Monster: "<<chosenCard.name<<" of "<<chosenCard.suit<<"\n";
+				if (p.w < chosenCard.value) {
+					int loss = chosenCard.value - p.w;
+					p.h = p.h-loss;
+				} 
+				else if(p.w==chosenCard.value){
+					p.w--;
+				}
+				else if(p.w>chosenCard.value){
+					p.w=chosenCard.value;
+				}
+				p.score+=chosenCard.value;
+				cout<<"\n"<<"Health:"<<p.h<< " | Weapon: " <<p.w<< " | Score: " <<p.score<<"\n"<<"\n";
+				}
             }
 
             // Check if the player is alive
@@ -145,4 +177,3 @@ int main() {
     level1.choiceloop();
     return 0;
 }
-
