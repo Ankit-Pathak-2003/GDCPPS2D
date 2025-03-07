@@ -16,7 +16,13 @@ public:
     Card(int x, string s, string n) : value(x), suit(s), name(n) {}
 
     void printCard() const {
-        cout << name << " of " << suit << '\n';
+    	if(suit=="Weapon"){
+    		cout << suit << '\n';
+		}
+		else{
+			cout << name << " of " << suit << '\n';
+		}
+        
     }
 
     bool operator==(const Card& other) const {
@@ -37,7 +43,7 @@ public:
     list<Card> pile;
 
     Deck() {
-        string suits[] = {"Heart", "Spade", "Diamond", "Club"};
+        string suits[] = {"Heart", "Demon", "Weapon", "Devil"};
         string names[] = {"2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"};
         int values[] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14};
 
@@ -46,6 +52,8 @@ public:
                 cards.emplace_back(values[i], suit, names[i]);
             }
         }
+        cards.emplace_back(100, "Joker", "Heath");
+        cards.emplace_back(100, "Joker", "Jared");
     }
 
     void shuffleDeck() {
@@ -71,7 +79,7 @@ public:
     }
 
     void addCardToDeck(const Card& c) {
-        pile.push_back(c); // Add card back to deck
+        pile.push_front(c); // Add card back to deck
     }
 };
 
@@ -91,7 +99,8 @@ public:
     unordered_set<Card, Card::Hash> visited, discarded;
 
     Level() {
-        cout << endl << "Let us BEGIN!" << endl;
+    	cout<<"Rules: \nYou need to find Joker to win this game.\nIf you reach joker with 0 score, you lose.\nIf you use weapon to kill a weaker monster, your weapon will detoriate to value of that monster.\nIf you use weapon on a superior monster, weapon will remain unaffected, but your health will diminish.\nHearts heal you to maximum of 20.\nWeapons and hearts have values from 2-14.\nThere are 2 monsters for every value, but only one heart and weapon for each.\nGOOD LUCK!";    	
+        cout << endl <<endl<< "Let us BEGIN!" << endl;
         new_Deck.shuffleDeck();
         new_Deck.setDeck();
     }
@@ -110,17 +119,29 @@ public:
                 cout << i + 1 << ". ";
                 room[i].printCard();
             }
-            cout << "Choose a card to deal with (1-4), or enter 0 to run away: ";
+            cout << "Choose a card to deal with (1-4), or enter 0 to run away: \n\n";
 
             int choice;
             cin >> choice;
 
             if (choice == 0) {
                 // Player decides to run, take damage from the weakest monster
-                cout << "You chose to run. Taking damage from the weakest monster...\n";
+                
                 // Add the cards back to the deck after running
+                
+                int min_dam=15;
+                for(auto& c:room){
+                	if(c.suit=="Devil" || c.suit=="Demon"){
+                		min_dam=min(min_dam,c.value);
+					}
+				}
+				cout << "\nYou chose to run. Taking damage from the weakest monster...\n";
+				p.h-=min_dam;
+				cout<<"\n"<<"Health:"<<p.h<< " | Weapon: " <<p.w<< " | Score: " <<p.score<<"\n"<<"\n";
+                
                 for (auto& c : room) {
                     new_Deck.addCardToDeck(c);
+                    new_Deck.shuffleDeck();
                 }
                 room.clear(); // Reset the room for the next round
                 cout << "Loading Next Room...\n";
@@ -130,7 +151,11 @@ public:
                 // Handle the card choice logic (e.g., if it's a weapon, monster, etc.)
                 cout << "You chose to deal with the " << chosenCard.name << " of " << chosenCard.suit << ".\n";
                 // Add your logic here to handle combat, health, etc.
-                if(chosenCard.suit=="Heart"){
+                if (chosenCard.suit == "Joker" || p.score!=0){
+                cout << "You Win!\nGame Over.\n";
+                break;
+            }
+				else if(chosenCard.suit=="Heart"){
                 	if(20<=p.h+chosenCard.value){
                 		p.h=20;
                 		cout<<"Full health achieved.";
@@ -139,14 +164,14 @@ public:
 						p.h+=chosenCard.value;
 						cout<<"Healed using: "<<chosenCard.name<< " of " <<chosenCard.suit<<"\n";
 					}
-					cout<<"Health:"<<p.h<< " W: " <<p.w<< " Score: " <<p.score<<"\n";
+					cout<<"\n"<<"Health:"<<p.h<< " | Weapon: " <<p.w<< " | Score: " <<p.score<<"\n"<<"\n";
 				}
-				if(chosenCard.suit=="Diamond"){
+				if(chosenCard.suit=="Weapon"){
 				p.w=chosenCard.value;
 				cout<<"Equipped:"<<chosenCard.name<< " of " <<chosenCard.suit<<"\n";
-				cout<<"Health:"<<p.h<< " W: " <<p.w<< " Score: " <<p.score<<"\n";
+				cout<<"\n"<<"Health:"<<p.h<< " | Weapon: " <<p.w<< " | Score: " <<p.score<<"\n"<<"\n";
 				}
-				if(chosenCard.suit=="Club" || chosenCard.suit=="Spade"){
+				if(chosenCard.suit=="Demon" || chosenCard.suit=="Devil"){
 				cout << "Fighting the Monster: "<<chosenCard.name<<" of "<<chosenCard.suit<<"\n";
 				if (p.w < chosenCard.value) {
 					int loss = chosenCard.value - p.w;
@@ -161,6 +186,21 @@ public:
 				p.score+=chosenCard.value;
 				cout<<"\n"<<"Health:"<<p.h<< " | Weapon: " <<p.w<< " | Score: " <<p.score<<"\n"<<"\n";
 				}
+				for(int i=0;i<4;i++){
+					if(room[i]==chosenCard){
+						discarded.insert(chosenCard);
+						continue;
+					}
+					new_Deck.addCardToDeck(room[i]);
+				}
+				new_Deck.shuffleDeck();
+				room.clear();
+				if (p.h <= 0) {
+				cout << "You have died! Game Over.\n";
+                break;
+				}
+				cout << "Loading Next Room...\n";
+				continue;
             }
 
             // Check if the player is alive
@@ -168,6 +208,7 @@ public:
                 cout << "You have died! Game Over.\n";
                 break;
             }
+            
         }
     }
 };
