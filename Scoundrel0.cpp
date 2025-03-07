@@ -151,7 +151,7 @@ public:
                 // Handle the card choice logic (e.g., if it's a weapon, monster, etc.)
                 cout << "You chose to deal with the " << chosenCard.name << " of " << chosenCard.suit << ".\n";
                 // Add your logic here to handle combat, health, etc.
-                if (chosenCard.suit == "Joker" || p.score!=0){
+                if (chosenCard.suit == "Joker" && p.score!=0){
                 cout << "You Win!\nGame Over.\n";
                 break;
             }
