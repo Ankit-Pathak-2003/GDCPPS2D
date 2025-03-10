@@ -12,11 +12,9 @@ int main()
     
     int selectionIndex1=0;
     int selectionIndex2=0;
-    int GState=0;
+    int GState=3;
     int PGState=0;
-    int TGstate=0;
-    int LoadTime=2.0f;
-    //unordered_map<int,string> gamestates={{0,"MainMenu"},{1,"Menu"},{2,"Rules"},{3,"Controles"},{4,"Controles"},{5,"Start Game"}};
+    //unordered_map<int,string> gamestates={{0,"MainMenu"},{1,"Menu"},{2,"Rules"},{3,"Controles"},{4,"Start Game"},{5,"Credits"}};
     
     
     //==========================================
@@ -49,6 +47,20 @@ int main()
     selectCtrl.setFillColor(sf::Color::Black);
     selectCtrl.setPosition(500,700);
     
+    // Selection highlight
+	sf::RectangleShape HighlightRules(sf::Vector2f(1750.f,550.f));
+    HighlightRules.setFillColor(sf::Color::Black);
+    HighlightRules.setPosition(50,250);
+    
+    // Selection highlight
+	sf::RectangleShape HighlightRulesTxt(sf::Vector2f(260.f,80.f));
+    HighlightRulesTxt.setFillColor(sf::Color::White);
+    HighlightRulesTxt.setPosition(50,200);
+    
+    // Selection highlight
+	sf::RectangleShape HighlightCtrlsTxt(sf::Vector2f(400.f,80.f));
+    HighlightCtrlsTxt.setFillColor(sf::Color::White);
+    HighlightCtrlsTxt.setPosition(50,200);
     
     //=====================================================
     //Section-3: Loading Fonts,Textures and other resources
@@ -61,9 +73,11 @@ int main()
     	return -1;
 	}
     
-    //LoadingScreen Timer
-    sf::Clock timer;
-    
+    sf::Font font1;
+    if(!font1.loadFromFile("Gameplay.ttf")){
+    	return -1;
+	}
+	
     // Load Background Texture
     sf::Texture backgroundT;
     if (!backgroundT.loadFromFile("MainMenu.png")) {
@@ -158,7 +172,7 @@ int main()
     //======================================================
     
     
-    //The Escape Button
+    //The Escape Action
     
     sf::Text Back_txt;
     Back_txt.setFont(font);
@@ -184,12 +198,55 @@ int main()
 	Ctrl_txt.setFillColor(sf::Color::Yellow);
 	Ctrl_txt.setPosition(500,700);
     
-    //Highlights for the "Menu" Options.
+    //Highlights for the "Menu" Options are coded in the Highlights section.
     
+    
+    
+    //======================================================
+    //Section-6: Making The "Rules"
+    //======================================================
+    
+    sf::Text Rules_page_txt;
+    Rules_page_txt.setFont(font1);
+    Rules_page_txt.setCharacterSize(17);
+    Rules_page_txt.setFillColor(sf::Color::White);
+    Rules_page_txt.setString(L"1. The game runs till your score is at least 150 points.\n\n2. Every room has 4 cards, to move to next room, you must choose one of the cards.\n\n3.There are 4 Suit of cards: Heart(Health),Weapons, Devils(Enemies) & Demons(Enemies).\n\n4. To Defeat an enemy, you can fight them using your weapon.(including barehanded i.e. weapon =0).\n\n5. If you fight an enemy stronger than your weapon, your weapon remains intact,but your health takes the difference in damage.\n\n6. If you fight an enemy weaker than your current weapon,your weapon stats drop to it's level, so chose your battles wisely.\n\n7. Using heart will heal you upto maximum of 20.\n\n8. The score of a weapon card will not be visible unless you equip it, doing so will permanently unequip your current weapon. So, switch weapons wisely.\n\n8. Once a card has been dealt with(Chosen), it will no longer repeat in upcoming rooms.\n\n9.You have chances of finding 1 of 2 joker cards in deck which provide a unique buff to you.\n\n10. A joker card can either restore you to full health, or take 10 points off your score to gift you a powerful weapon.");
+    Rules_page_txt.setPosition(100,325);
+    
+    sf::Text Rule_txt1;
+    Rule_txt1.setFont(font);
+    Rule_txt1.setString(L"> Rules");
+	Rule_txt1.setCharacterSize(62);
+	Rule_txt1.setOutlineThickness(4);
+	Rule_txt1.setOutlineColor(sf::Color::Black);
+	Rule_txt1.setFillColor(sf::Color::Yellow);
+	Rule_txt1.setPosition(50,200);
+    
+    
+    //======================================================
+    //Section-7: Making The "Controls"
+    //======================================================
+    
+    
+    sf::Text Ctrl_page_txt;
+    Ctrl_page_txt.setFont(font1);
+    Ctrl_page_txt.setCharacterSize(25);
+    Ctrl_page_txt.setFillColor(sf::Color::White);
+    Ctrl_page_txt.setString(L"1. [W] = UP\n\n2. [S] = DOWN\n\n3. [A] = LEFT\n\n4. [D] = RIGHT\n\n5. [Return] = SELECT\n\n6. [BackSpace] = Back\n\n7. [I] = OPEN RULES\n\n8. [R] = RUN FROM ROOM");
+    Ctrl_page_txt.setPosition(100,325);
+    
+    sf::Text Ctrl_txt1;
+    Ctrl_txt1.setFont(font);
+    Ctrl_txt1.setString(L"> Controls");
+	Ctrl_txt1.setCharacterSize(62);
+	Ctrl_txt1.setOutlineThickness(4);
+	Ctrl_txt1.setOutlineColor(sf::Color::Black);
+	Ctrl_txt1.setFillColor(sf::Color::Yellow);
+	Ctrl_txt1.setPosition(50,200);
     
     
     //====================
-    //Section-6: Game Loop
+    //Section-8: Game Loop
     //====================
 
 
@@ -211,7 +268,8 @@ int main()
 					}
 					if(event.key.code==sf::Keyboard::Return){
 						if(selectionIndex1==0){
-							
+							GState=5;
+							continue;
 						}
 						if(selectionIndex1==1){
 							GState=1;
@@ -248,14 +306,26 @@ int main()
 				}				
 			}
 			if(GState==2){
-				
+				if(event.type==sf::Event::KeyPressed){
+					if(event.key.code==sf::Keyboard::BackSpace){
+						GState=1;
+					}
+				}				
 			}
 			if(GState==3){
-				
+				if(event.type==sf::Event::KeyPressed){
+					if(event.key.code==sf::Keyboard::BackSpace){
+						GState=1;
+					}
+				}
 			}
         }
 
         window.clear();                // Clear the screen
+        
+        
+        
+        
         
 //        window.draw(shape);            // Draw red circle
 
@@ -298,20 +368,32 @@ int main()
 		}
 		
 		else if(GState==2){
-			if(TGstate==0) PGState=1;
-			
+			PGState=1;
+			window.draw(loadingScreen);
+			window.draw(Back_txt);
+			window.draw(HighlightRules);
+			window.draw(HighlightRulesTxt);
+			window.draw(Rule_txt1);
+			window.draw(Rules_page_txt);
 		}
 		else if(GState==3){
-			if(TGstate==0) PGState=1;
+			PGState=1;
+			window.clear(sf::Color(77,78,158));
+			window.draw(loadingScreen);
+			window.draw(Back_txt);
+			window.draw(HighlightRules);
+			window.draw(HighlightCtrlsTxt);
+			window.draw(Ctrl_txt1);
+			window.draw(Ctrl_page_txt);
 			
 		}
 		else if(GState==4){
-			if(TGstate==0) PGState=0;
+			PGState=0;
 			
 			
 		}
 		else if(GState==5){
-			if(TGstate==0) PGState=0;
+			PGState=0;
 			window.close();//Placeholder for now.
 		}
         
@@ -322,4 +404,3 @@ int main()
 
     return 0;
 }
-
